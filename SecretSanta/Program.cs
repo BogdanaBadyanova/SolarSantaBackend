@@ -3,39 +3,44 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
+using SecretSanta.Application.Services;
 using SecretSanta.Domain;
 using SecretSanta.Infrastructure;
+using SecretSanta.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<SecretSantaContext>(options =>
-                                                options.UseNpgsql(builder.Configuration.GetConnectionString("SecretSantaContext") ?? throw new InvalidOperationException("Connection string 'SecretSantaContext' not found.")));
-// builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-//   .AddEntityFrameworkStores<SecretSantaContext>()
-//   .AddDefaultTokenProviders();
-// builder.Services.AddAuthentication(options =>
-//   {
-//     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-//   })
-//   .AddJwtBearer(options =>
-//   {
-//     options.SaveToken = true;
-//     options.RequireHttpsMetadata = false;
-//     options.TokenValidationParameters = new TokenValidationParameters()
-//     {
-//       ValidateIssuer = true,
-//       ValidateAudience = true,
-//       ValidAudience = builder.Configuration["JWT:ValidAudience"],
-//       ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-//       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-//     };
-//   });
+                                                    options.UseNpgsql(builder.Configuration.GetConnectionString("SecretSantaContext") ??
+                                                                      throw new InvalidOperationException("Connection string 'SecretSantaContext' not found.")));
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+  .AddEntityFrameworkStores<SecretSantaContext>()
+  .AddDefaultTokenProviders();
+builder.Services.AddAuthentication(options =>
+  {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+  })
+  .AddJwtBearer(options =>
+  {
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+      ValidateIssuer = true,
+      ValidateAudience = true,
+      ValidAudience = builder.Configuration["JWT:ValidAudience"],
+      ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
+    };
+  });
 
-// builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<IBoxRepository, BoxRepository>();
+builder.Services.AddScoped<IBoxService, BoxService>();
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddCors();
 
@@ -48,7 +53,11 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-  option.SwaggerDoc("v1", new OpenApiInfo { Title = "SecretSanta API", Version = "v1" });
+  option.SwaggerDoc("v1", new OpenApiInfo
+  {
+    Title = "SecretSanta API",
+    Version = "v1"
+  });
   // var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
   // var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
   // option.IncludeXmlComments(xmlPath);
@@ -68,26 +77,27 @@ builder.Services.AddSwaggerGen(option =>
       {
         Reference = new OpenApiReference
         {
-          Type=ReferenceType.SecurityScheme,
-          Id="Bearer"
+          Type = ReferenceType.SecurityScheme,
+          Id = "Bearer"
         }
       },
-      new string[]{}
+      new string[]
+      {
+      }
     }
   });
 });
-
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-  // var serviceProvider = scope.ServiceProvider;
-  // var context = serviceProvider.GetRequiredService<SecretSantaContext>();
+  var serviceProvider = scope.ServiceProvider;
+  var context = serviceProvider.GetRequiredService<SecretSantaContext>();
 
-  // context.Database.Migrate();
+  context.Database.Migrate();
 }
- 
+
 app.UseCors(builder =>
 {
   builder.WithOrigins("https://solar-santa.vercel.app", "http://localhost:4200")
@@ -99,11 +109,11 @@ app.UseCors(builder =>
 // Configure the HTTP request pipeline.
 // if (app.Environment.IsDevelopment())
 // {
-  app.UseSwagger();
-  app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 // }
 
-  app.UseRouting();
+app.UseRouting();
 
 app.UseHttpsRedirection();
 
