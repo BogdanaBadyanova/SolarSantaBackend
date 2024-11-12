@@ -1,0 +1,6 @@
+﻿services:
+  secretsanta:
+    image: secretsanta
+    build:
+      context: .
+      dockerfile: SecretSanta/Dockerfile
