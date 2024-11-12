@@ -3,4 +3,4 @@
     image: secretsanta
     build:
       context: .
-      dockerfile: SecretSanta/Dockerfile
+      dockerfile: Dockerfile
