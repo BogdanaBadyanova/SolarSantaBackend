@@ -7,17 +7,32 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY SecretSanta/SecretSanta.csproj ./
-RUN dotnet restore "SecretSanta.csproj"
+
+# Копируем только проект для восстановления зависимостей
+COPY SecretSanta/SecretSanta.csproj ./SecretSanta/
+RUN dotnet restore "./SecretSanta/SecretSanta.csproj"
+
+# Копируем все остальные файлы
 COPY . .
 
-# Убедимся, что директории для сборки и публикации существуют, и создаем их с правами root
-RUN mkdir -p /app/build && chown -R root:root /app/build && dotnet build "SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# Убедитесь, что директории для сборки существуют
+RUN mkdir -p /app/build && chown -R root:root /app/build
+
+# Устанавливаем права на каталог /app для всех пользователей
+RUN chmod -R 777 /app
+
+# Сборка проекта
+RUN dotnet build "SecretSanta/SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
-RUN mkdir -p /app/publish && chown -R root:root /app/publish && dotnet publish "SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# Публикуем проект
+RUN mkdir -p /app/publish && dotnet publish "SecretSanta/SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
+
+# Копируем из промежуточного контейнера в финальный
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "SecretSanta.dll"]
