@@ -1,5 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+USER root
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
@@ -11,11 +11,11 @@ COPY SecretSanta/SecretSanta.csproj ./
 RUN dotnet restore "SecretSanta.csproj"
 COPY . .
 WORKDIR "/src"
-RUN dotnet build "SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN mkdir -p /app/build && dotnet build "SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN mkdir -p /app/publish && dotnet publish "SecretSanta.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
