@@ -7,6 +7,9 @@ namespace SecretSanta.Infrastructure.Repositories
   public interface IBoxRepository
   {
     Task<PaginatedResponse<Box>> GetPagedBoxesAsync(GetPagedBoxesRequest request);
+    Task<Box> AddAsync(Box box);
+    Task<Box?> GetByIdAsync(Guid id);
+    Task DeleteAsync(Guid id);
   }
 
   public class BoxRepository : IBoxRepository
@@ -16,6 +19,18 @@ namespace SecretSanta.Infrastructure.Repositories
     public BoxRepository(SecretSantaContext context)
     {
       _context = context;
+    }
+    
+    public async Task<Box> AddAsync(Box box)
+    {
+      var entityEntry = await _context.Boxes.AddAsync(box);
+      await _context.SaveChangesAsync();
+      return entityEntry.Entity;
+    }
+
+    public async Task<Box?> GetByIdAsync(Guid id)
+    {
+      return await _context.Boxes.FindAsync(id);
     }
 
     public async Task<PaginatedResponse<Box>> GetPagedBoxesAsync(GetPagedBoxesRequest request)
@@ -40,6 +55,16 @@ namespace SecretSanta.Infrastructure.Repositories
         Items = items,
         TotalCount = totalCount
       };
+    }
+    
+    public async Task DeleteAsync(Guid id)
+    {
+      var box = await GetByIdAsync(id);
+      if (box != null)
+      {
+        _context.Boxes.Remove(box);
+        await _context.SaveChangesAsync();
+      }
     }
   }
 }

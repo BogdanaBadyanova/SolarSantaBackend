@@ -1,6 +1,8 @@
-﻿namespace SecretSanta.Domain
+﻿using SecretSanta.Domain;
+
+namespace SecretSanta.Dto
 {
-  public class Box
+  public class BoxDetail
   {
     // Уникальный идентификатор
     public Guid Id { get; set; }
@@ -37,6 +39,6 @@
     public string Location { get; set; }
 
     // Список участников (могут быть модели пользователей или участников)
-    public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();
+    public List<Participant> Participants { get; set; } = new List<Participant>();
   }
 }

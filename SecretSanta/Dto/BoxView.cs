@@ -37,8 +37,5 @@ namespace SecretSanta.Dto
 
     // Место проведения
     public string Location { get; set; }
-
-    // Список участников (могут быть модели пользователей или участников)
-    public List<Participant> Participants { get; set; } = new List<Participant>();
   }
 }

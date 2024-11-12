@@ -25,7 +25,6 @@ namespace SecretSanta.Dto
         /// <summary>
         /// Иконка коробки
         /// </summary>
-        [Url(ErrorMessage = "Неверный формат URL для иконки.")]
         [Display(Name = "Иконка")]
         public string Icon { get; set; }
 
@@ -34,21 +33,21 @@ namespace SecretSanta.Dto
         /// </summary>
         [Required(ErrorMessage = "Дата начала приема участников обязательна.")]
         [Display(Name = "Дата начала приема участников")]
-        public DateTime ParticipantsStartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         /// <summary>
         /// Дата окончания приема участников
         /// </summary>
         [Required(ErrorMessage = "Дата окончания приема участников обязательна.")]
         [Display(Name = "Дата окончания приема участников")]
-        public DateTime ParticipantsEndDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         /// <summary>
         /// Дата начала покупки подарков
         /// </summary>
-        [Required(ErrorMessage = "Дата начала покупки подарков обязательна.")]
-        [Display(Name = "Дата начала покупки подарков")]
-        public DateTime GiftPurchaseStartDate { get; set; }
+        [Required(ErrorMessage = "Дата распределения (рандомизации) участников обязательна.")]
+        [Display(Name = "Дата распределения (рандомизации) участников")]
+        public DateTime RandomizationDate { get; set; }
 
         /// <summary>
         /// Дата окончания покупки подарков
@@ -70,16 +69,16 @@ namespace SecretSanta.Dto
         [Required(ErrorMessage = "Минимальная сумма подарка обязательна.")]
         [Range(0, double.MaxValue, ErrorMessage = "Сумма подарка должна быть больше или равна нулю.")]
         [Display(Name = "Сумма подарков от")]
-        public decimal MinGiftAmount { get; set; }
+        public decimal MinGiftValue { get; set; }
 
         /// <summary>
         /// Сумма подарков до
         /// </summary>
         [Required(ErrorMessage = "Максимальная сумма подарка обязательна.")]
         [Range(0, double.MaxValue, ErrorMessage = "Сумма подарка должна быть больше или равна нулю.")]
-        [GreaterThanValidation("MinGiftAmount", ErrorMessage = "Сумма подарка до должна быть больше суммы подарка от.")]
+        [GreaterThanValidation("MinGiftValue", ErrorMessage = "Сумма подарка до должна быть больше суммы подарка от.")]
         [Display(Name = "Сумма подарков до")]
-        public decimal MaxGiftAmount { get; set; }
+        public decimal MaxGiftValue { get; set; }
 
         /// <summary>
         /// Место проведения
